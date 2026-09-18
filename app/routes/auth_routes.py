@@ -1,5 +1,5 @@
 """Authentication endpoints: login, logout, refresh, password management."""
-from __future__ import annotations
+# from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Request, status
 from redis.asyncio import Redis

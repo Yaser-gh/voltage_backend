@@ -1,5 +1,5 @@
 """Dashboard aggregate statistics endpoints."""
-from __future__ import annotations
+# from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession

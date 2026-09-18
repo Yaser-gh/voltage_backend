@@ -1,5 +1,5 @@
 """Project management endpoints, including lifecycle status transitions and files."""
-from __future__ import annotations
+# from __future__ import annotations
 
 from uuid import UUID
 

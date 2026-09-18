@@ -1,5 +1,5 @@
 """Generic file endpoints: download, preview, metadata, rename (works for any file id)."""
-from __future__ import annotations
+# from __future__ import annotations
 
 from uuid import UUID
 
