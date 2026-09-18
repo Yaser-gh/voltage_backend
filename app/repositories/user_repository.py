@@ -24,7 +24,7 @@ class UserRepository(BaseRepository[User]):
 
     async def get_by_username(self, username: str) -> User | None:
         """Fetch a user by unique username (used during login)."""
-        query = select(User).where(User.username ==
+        stmt = select(User).where(User.username ==
                                    username, User.deleted_at.is_(None))
         return await self.session.scalar(stmt)
 
