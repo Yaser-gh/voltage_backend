@@ -13,6 +13,7 @@ from app.validators.common import (
     validate_phone,
     validate_username,
 )
+from app.core.constants import DEFAULT_LIMIT, DEFAULT_PAGE, MAX_LIMIT
 
 
 class PhoneNumberCreate(BaseModel):
@@ -32,6 +33,18 @@ class PhoneNumberResponse(ORMBase):
     phone: str
     label: str | None
 
+class GetUsersRequest(BaseModel):
+    offset: ini | None = Field(DEFAULT_PAGE, ge=1, description="Page number, 1-indexed")
+    limit: int | None = Field(DEFAULT_LIMIT, ge=1, le=MAX_LIMIT, description="Items per page.")
+    is_active: bool | None = None
+    is_pinned: bool | None = None
+    is_verified: bool | None = None
+    search_text: str | None = None
+    sort_by: str | None = Field(None, description="Field name to sort by")
+    sort_order: Literal["asc", "desc"] = Field("desc", description="Sort direction")
+
+class GetUserInfoRequest(BaseModel):
+    user_id: UUID
 
 class UserCreateRequest(BaseModel):
     """Payload for creating a new user (admin/manager action)."""
@@ -68,6 +81,7 @@ class UserCreateRequest(BaseModel):
 
 class UserUpdateRequest(BaseModel):
     """Payload for updating an existing user. All fields optional (partial update)."""
+    user_id: UUID
     first_name: str | None = Field(None, min_length=1, max_length=100)
     last_name: str | None = Field(None, min_length=1, max_length=100)
     email: EmailStr | None = None

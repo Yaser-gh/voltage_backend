@@ -11,7 +11,7 @@ from app.dependencies.pagination import PaginationParams
 from app.exceptions.custom import AlreadyExistsException, NotFoundException
 from app.repositories.file_repository import FileRepository
 from app.repositories.user_repository import UserRepository
-from app.schemas.user import UserCreateRequest, UserUpdateRequest
+from app.schemas.user import UserCreateRequest, UserUpdateRequest, GetUsersRequest, GetUserInfoRequest
 from app.security.password import hash_password
 from app.services.file_service import FileService
 
@@ -50,18 +50,18 @@ class UserService:
         logger.info("user_created", user_id=str(getattr(user, "id", None)))
         return user
 
-    async def get_user(self, user_id: UUID) -> object:
+    async def get_user(self, payload: GetUserInfoRequest) -> object:
         """Fetch a single user by id, raising 404 if not found."""
-        user = await self.user_repo.get_by_id(user_id)  # TODO
+        user = await self.user_repo.get_by_id(payload.user_id)  # TODO
         if user is None:
             raise NotFoundException("User not found")
         return user
 
-    async def list_users(self, pagination: PaginationParams, *, is_active: bool | None = None):
+    async def list_users(self, paylod: GetUsersRequest, *, is_active: bool | None = None):
         """List/search/paginate users."""
         return await self.user_repo.search(  # TODO
-            query=pagination.search, is_active=is_active, offset=pagination.offset, limit=pagination.limit,
-            sort_by=pagination.sort_by, sort_order=pagination.sort_order,
+            query=paylod.search_text, is_active=paylod.is_active, offset=paylod.offset, limit=paylod.limit,
+            sort_by=paylod.sort_by, sort_order=paylod.sort_order,
         )
 
     async def update_user(self, user_id: UUID, payload: UserUpdateRequest) -> object:
@@ -87,7 +87,7 @@ class UserService:
             file, owner_type=FileOwnerType.AVATAR, project_id=None, payment_id=None,
             uploaded_by_id=user_id, max_size_mb=None,
         )
-        await self.user_repo.update_avatar(user_id, file_asset.id)  # TODO
+        await self.user_repo.update_avatar(user_id, file_asset.u_id)  # TODO
         logger.info("avatar_uploaded", user_id=str(user_id))
         return file_asset
 

@@ -31,6 +31,8 @@ from app.schemas.user import (
     UserProjectsCountResponse,
     UserResponse,
     UserUpdateRequest,
+    GetUsersRequest,
+    GetUserInfoRequest
 )
 from app.services.user_service import UserService
 
@@ -38,7 +40,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.post(
-    "",
+    "/createUser",
     response_model=SuccessResponse[UserResponse],
     status_code=status.HTTP_201_CREATED,
     summary="Create a new user",
@@ -52,8 +54,8 @@ async def create_user(payload: UserCreateRequest, session: AsyncSession = Depend
     return SuccessResponse(status=201, message="User created", data=user)
 
 
-@router.get(
-    "",
+@router.post(
+    "/getUsers",
     response_model=PaginatedResponse[UserListItemResponse],
     summary="List / search users",
     description="Returns a paginated, sortable, searchable list of users. Supports "
@@ -61,53 +63,52 @@ async def create_user(payload: UserCreateRequest, session: AsyncSession = Depend
     dependencies=[Depends(RequirePermission(Permission.USER_LIST))],
 )
 async def list_users(
-    is_active: bool | None = None,
-    pagination: PaginationParams = Depends(pagination_params),
+    payload: GetUsersRequest,
     session: AsyncSession = Depends(get_db_session),
 ) -> PaginatedResponse[UserListItemResponse]:
     service = UserService(session)
-    items, total = await service.list_users(pagination, is_active=is_active)
+    items, total = await service.list_users(payload, is_active=is_active)
     return PaginatedResponse(data=items, meta=build_pagination_meta(pagination.page, pagination.limit, total))
 
 
-@router.get(
-    "/{user_id}",
+@router.post(
+    "/getUserInfo",
     response_model=SuccessResponse[UserResponse],
     summary="Get a user by id",
     responses={404: {"model": ErrorResponse, "description": "User not found"}},
     dependencies=[Depends(RequirePermission(Permission.USER_READ))],
 )
-async def get_user(user_id: UUID, session: AsyncSession = Depends(get_db_session)) -> SuccessResponse[UserResponse]:
+async def get_user(payload: GetUserInfoRequest, session: AsyncSession = Depends(get_db_session)) -> SuccessResponse[UserResponse]:
     service = UserService(session)
-    user = await service.get_user(user_id)
+    user = await service.get_user(payload)
     return SuccessResponse(data=user)
 
 
-@router.patch(
-    "/{user_id}",
+@router.post(
+    "/updateUser",
     response_model=SuccessResponse[UserResponse],
     summary="Update a user",
     description="Partial update — only supplied fields are changed.",
     responses={404: {"model": ErrorResponse, "description": "User not found"}},
     dependencies=[Depends(RequirePermission(Permission.USER_UPDATE))],
 )
-async def update_user(user_id: UUID, payload: UserUpdateRequest, session: AsyncSession = Depends(get_db_session)) -> SuccessResponse[UserResponse]:
+async def update_user(payload: UserUpdateRequest, session: AsyncSession = Depends(get_db_session)) -> SuccessResponse[UserResponse]:
     service = UserService(session)
     user = await service.update_user(user_id, payload)
-    return SuccessResponse(message="User updated", data=user)
+    return SuccessResponse(message="User updated.", data=user)
 
 
-@router.delete(
-    "/{user_id}",
+@router.post(
+    "/deleteUser",
     response_model=SuccessResponse[MessageResponse],
     summary="Delete a user",
     description="Soft-deletes the user; the record is retained for audit purposes.",
     responses={404: {"model": ErrorResponse, "description": "User not found"}},
     dependencies=[Depends(RequirePermission(Permission.USER_DELETE))],
 )
-async def delete_user(user_id: UUID, session: AsyncSession = Depends(get_db_session)) -> SuccessResponse[MessageResponse]:
+async def delete_user(payload: GetUserInfoRequest, session: AsyncSession = Depends(get_db_session)) -> SuccessResponse[MessageResponse]:
     service = UserService(session)
-    await service.delete_user(user_id)
+    await service.delete_user(payload.user_id)
     return SuccessResponse(message="User deleted", data=MessageResponse(message="User deleted"))
 
 
@@ -128,42 +129,16 @@ async def upload_avatar(
     return SuccessResponse(message="Avatar uploaded", data=file_asset)
 
 
-@router.delete(
-    "/{user_id}/avatar",
+@router.post(
+    "/deleteAvatar",
     response_model=SuccessResponse[MessageResponse],
     summary="Delete a user's avatar",
     dependencies=[Depends(RequirePermission(Permission.USER_UPDATE))],
 )
-async def delete_avatar(user_id: UUID, session: AsyncSession = Depends(get_db_session)) -> SuccessResponse[MessageResponse]:
+async def delete_avatar(payload: GetUserInfoRequest, session: AsyncSession = Depends(get_db_session)) -> SuccessResponse[MessageResponse]:
     service = UserService(session)
-    await service.delete_avatar(user_id)
+    await service.delete_avatar(payload.user_id)
     return SuccessResponse(message="Avatar deleted", data=MessageResponse(message="Avatar deleted"))
-
-
-@router.patch(
-    "/{user_id}/biography",
-    response_model=SuccessResponse[UserResponse],
-    summary="Update a user's biography",
-    dependencies=[Depends(RequirePermission(Permission.USER_UPDATE))],
-)
-async def update_biography(user_id: UUID, payload: UpdateBiographyRequest, session: AsyncSession = Depends(get_db_session)) -> SuccessResponse[UserResponse]:
-    service = UserService(session)
-    user = await service.update_biography(user_id, payload.biography)
-    return SuccessResponse(message="Biography updated", data=user)
-
-
-@router.patch(
-    "/{user_id}/phone",
-    response_model=SuccessResponse[UserResponse],
-    summary="Update a user's primary phone number",
-    responses={409: {"model": ErrorResponse, "description": "Phone number already in use"}},
-    dependencies=[Depends(RequirePermission(Permission.USER_UPDATE))],
-)
-async def update_phone(user_id: UUID, payload: UpdatePhoneRequest, session: AsyncSession = Depends(get_db_session)) -> SuccessResponse[UserResponse]:
-    service = UserService(session)
-    user = await service.update_phone(user_id, payload.phone)
-    return SuccessResponse(message="Phone number updated", data=user)
-
 
 @router.post(
     "/{user_id}/phones",

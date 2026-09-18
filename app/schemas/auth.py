@@ -19,7 +19,7 @@ class TokenResponse(BaseModel):
     """Access + refresh token pair returned on successful login/refresh."""
     access_token: str
     refresh_token: str
-    token_type: str = "bearer"
+    token_type: str = "Bearer"
     expires_in: int  # seconds until access token expiry
 
 
