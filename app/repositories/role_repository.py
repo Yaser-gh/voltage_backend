@@ -35,6 +35,8 @@ class RoleRepository(BaseRepository[Role]):
         role = await self.get_by_id(role_id)
         if role is None:
             return
+        
+        await self.session.refresh(role, ["permissions"])
         # `role.permissions` is a selectin-loaded relationship; SQLAlchemy
         # dedupes automatically if the permission is already attached.
         stmt = select(Permission).where(Permission.u_id == permission_id)
