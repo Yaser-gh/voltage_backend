@@ -8,6 +8,8 @@ from pydantic import BaseModel, Field
 
 T = TypeVar("T")
 
+class MessageResponce(BaseModel):
+    pass
 
 class ErrorDetail(BaseModel):
     """A single field-level validation error entry."""
