@@ -22,9 +22,9 @@ class FileAsset(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
 
     owner_type: Mapped[FileOwnerType] = mapped_column(String(20), nullable=False, index=True)
 
-    project_id: Mapped[UUID | None] = mapped_column(PG_UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"), nullable=True, index=True)
-    payment_id: Mapped[UUID | None] = mapped_column(PG_UUID(as_uuid=True), ForeignKey("payments.id", ondelete="CASCADE"), nullable=True, index=True)
-    uploaded_by_id: Mapped[UUID | None] = mapped_column(PG_UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    project_id: Mapped[UUID | None] = mapped_column(PG_UUID(as_uuid=True), ForeignKey("projects.u_id", ondelete="CASCADE"), nullable=True, index=True)
+    payment_id: Mapped[UUID | None] = mapped_column(PG_UUID(as_uuid=True), ForeignKey("payments.u_id", ondelete="CASCADE"), nullable=True, index=True)
+    uploaded_by_id: Mapped[UUID | None] = mapped_column(PG_UUID(as_uuid=True), ForeignKey("users.u_id", ondelete="SET NULL"), nullable=True)
 
     original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
     stored_filename: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)  # UUID-based name on disk

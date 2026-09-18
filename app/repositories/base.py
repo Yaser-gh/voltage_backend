@@ -44,7 +44,7 @@ class BaseRepository(Generic[ModelType]):
         Excludes soft-deleted rows unless `include_deleted=True` — pass that
         when you specifically need a trashed row back (e.g. to restore it).
         """
-        stmt = select(self.model).where(self.model.id == entity_id)
+        stmt = select(self.model).where(self.model.u_id == entity_id)
         if hasattr(self.model, "deleted_at") and not include_deleted:
             stmt = stmt.where(self.model.deleted_at.is_(None))
         result = await self.session.execute(stmt)
@@ -58,7 +58,7 @@ class BaseRepository(Generic[ModelType]):
         """
         if not entity_ids:
             return []
-        stmt = select(self.model).where(self.model.id.in_(entity_ids))
+        stmt = select(self.model).where(self.model.u_id.in_(entity_ids))
         if hasattr(self.model, "deleted_at"):
             stmt = stmt.where(self.model.deleted_at.is_(None))
         result = await self.session.execute(stmt)
@@ -155,7 +155,7 @@ class BaseRepository(Generic[ModelType]):
 
     async def exists(self, **filters: Any) -> bool:
         """Check whether any non-deleted row matching the given filters exists."""
-        stmt = select(self.model.id)
+        stmt = select(self.model.u_id)
         if hasattr(self.model, "deleted_at"):
             stmt = stmt.where(self.model.deleted_at.is_(None))
         stmt = self._apply_filters(stmt, filters)

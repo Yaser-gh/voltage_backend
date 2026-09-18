@@ -47,7 +47,7 @@ class RoleRepository(BaseRepository[Role]):
         role = await self.get_by_id(role_id)
         if role is None:
             return
-        role.permissions = [p for p in role.permissions if p.id != permission_id]
+        role.permissions = [p for p in role.permissions if p.u_id != permission_id]
         await self.session.flush()
 
     async def list_all(self) -> list[Role]:

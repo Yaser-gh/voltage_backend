@@ -44,4 +44,5 @@ class Project(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
         back_populates="project",
         cascade="all, delete-orphan",
         primaryjoin="and_(Project.u_id==FileAsset.project_id, FileAsset.payment_id==None)",
+        foreign_keys="FileAsset.project_id"
     )
