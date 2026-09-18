@@ -10,7 +10,7 @@ from app.core.constants import TokenType
 from app.core.limiter import limiter
 from app.dependencies.db import get_db_session
 from app.dependencies.redis import get_redis
-from app.responses.envelope import ErrorResponse, MessageResponse, SuccessResponse
+from app.responses.envelope import ErrorResponse, SuccessResponse as MessageResponse, SuccessResponse
 from app.schemas.auth import (
     ChangePasswordRequest,
     CurrentUser,
