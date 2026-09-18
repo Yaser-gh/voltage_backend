@@ -170,5 +170,5 @@ class UserRepository(BaseRepository[User]):
             return
 
         stmt = select(Role).where(Role.u_id.in_(role_ids))
-        user.roles = list((await self.session.scalars()).all())
+        user.roles = list((await self.session.scalars(stmt)).all())
         await self.session.flush()
