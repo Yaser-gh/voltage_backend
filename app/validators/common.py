@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 from datetime import date
 
-USERNAME_RE = re.compile(r"^[a-zA-Z0-9_.]{3,50}$")
+USERNAME_RE = re.compile(r"^[a-zA-Z0-9_.]{5,50}$")
 # Iranian-style mobile numbers (e.g. 09123456789) or generic E.164 international numbers.
 PHONE_RE = re.compile(r"^(?:\+?[1-9]\d{7,14}|0\d{9,10})$")
 BANK_ACCOUNT_RE = re.compile(r"^[0-9\-]{5,34}$")
@@ -13,7 +13,7 @@ PASSWORD_RE = re.compile(r"^(?=.*[A-Za-z])(?=.*\d).{8,128}$")
 
 
 def validate_username(value: str) -> str:
-    """Validate a username: 3-50 chars, alphanumeric plus `_` and `.` only."""
+    """Validate a username: 5-50 chars, alphanumeric plus `_` and `.` only."""
     value = value.strip()
     if not USERNAME_RE.match(value):
         raise ValueError("Username must be 3-50 characters: letters, digits, '_' or '.' only")

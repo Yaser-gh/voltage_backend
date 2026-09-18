@@ -2,10 +2,13 @@
 from __future__ import annotations
 
 from uuid import UUID
+import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, exists, or_, func
 
 from app.models.user import User, UserPhoneNumber
+from app.models.project import Project
 from app.repositories.base import BaseRepository
 
 
@@ -23,7 +26,9 @@ class UserRepository(BaseRepository[User]):
         TODO: implement with `select(User).where(User.username == username,
         User.deleted_at.is_(None))`, eager-loading roles/permissions via selectin.
         """
-        raise NotImplementedError
+        query = select(User).where(User.username == username, User.deleted_at.is_(None))
+        resp = (await self.session.execute(query)).scalar_one_or_none()
+        return resp
 
     async def get_by_email(self, email: str) -> User | None:
         """Fetch a user by unique email.
@@ -44,7 +49,18 @@ class UserRepository(BaseRepository[User]):
 
         TODO: implement with an OR-combined `select(exists().where(...))`.
         """
-        raise NotImplementedError
+        stmt = select(User.username, User.email).where(
+            or_(User.username == username, User.email == email)
+        )
+        resp = await self.session.execute(stmt)
+        row = resp.first()
+        if row is None:
+            return False
+        if username:
+            return row.username == username
+        elif email:
+            return row.email == email
+
 
     async def search(
         self, *, query: str | None, is_active: bool | None, offset: int, limit: int,
@@ -63,35 +79,48 @@ class UserRepository(BaseRepository[User]):
         TODO: implement as `UserPhoneNumber(user_id=user_id, phone=phone, label=label)`,
         add to session, flush, return instance.
         """
-        raise NotImplementedError
+        instance = UserPhoneNumber(user_id=user_id, phone=phone, label=label)
+        self.session.add(instance)
+        await self.session.flush()
+        return instance
 
     async def delete_phone_number(self, user_id: UUID, phone_id: UUID) -> bool:
         """Remove a secondary phone number, scoped to its owning user.
 
         TODO: implement as a scoped DELETE ensuring phone.user_id == user_id.
         """
-        raise NotImplementedError
+        stmt = select(UserPhoneNumber).where(UserPhoneNumber.user_id == user_id, UserPhoneNumber.u_id == phone_id)
+        resp = await self.session.execute(stmt)
+        instance = resp.scalar_one()
+        await self.session.delete(instance)
+        return True
 
     async def update_avatar(self, user_id: UUID, avatar_file_id: UUID | None) -> User | None:
         """Set (or clear, if None) a user's avatar file reference.
 
         TODO: implement as an UPDATE statement on User.avatar_file_id.
         """
-        raise NotImplementedError
+        user = await self.get_by_id(user_id)
+        user.avatar_file_id = avatar_file_id
+        await self.session.flush()
 
     async def update_biography(self, user_id: UUID, biography: str | None) -> User | None:
         """Update only the biography field.
 
         TODO: implement as a targeted UPDATE statement.
         """
-        raise NotImplementedError
+        user = await self.get_by_id(user_id)
+        user.biography = biography[:150]
+        await self.session.flush()
 
     async def update_primary_phone(self, user_id: UUID, phone: str) -> User | None:
         """Update the user's primary phone number.
 
         TODO: implement as a targeted UPDATE statement on User.phone.
         """
-        raise NotImplementedError
+        user = await self.get_by_id(user_id)
+        user.phone = phone
+        await self.session.flush()
 
     async def get_payment_summary(self, user_id: UUID) -> dict:
         """Aggregate total_payments / last_payment_at for a user across their projects.
@@ -107,28 +136,37 @@ class UserRepository(BaseRepository[User]):
         TODO: implement via `select(Project.status, func.count()).where(
         Project.owner_id == user_id).group_by(Project.status)`.
         """
-        raise NotImplementedError
+        stmt = select(Project.status, func.count()).where(Project.owner_id == user_id).group_by(Project.status)
+        resp = await self.session.execute(stmt)
+        return resp.scalar_one()
 
     async def set_failed_login_attempts(self, user_id: UUID, attempts: int, locked_until=None) -> None:
         """Persist updated brute-force counters after a login attempt.
 
         TODO: implement as a targeted UPDATE statement.
         """
-        raise NotImplementedError
+        user = await self.get_by_id(user_id)
+        user.failed_login_attempts = attempts
+        user.locked_until = locked_until
+        await self.session.flush()
 
     async def set_last_login(self, user_id: UUID) -> None:
         """Record successful login timestamp and reset failed-attempt counters.
 
         TODO: implement as a targeted UPDATE statement.
         """
-        raise NotImplementedError
+        user = await self.get_by_id(user_id)
+        user.last_login_at = datetime.datetime.now(tz=datetime.UTC)
+        await self.session.flush()
 
     async def set_password_hash(self, user_id: UUID, hashed_password: str) -> None:
         """Persist a new password hash (used by change-password / reset-password flows).
 
         TODO: implement as a targeted UPDATE statement.
         """
-        raise NotImplementedError
+        user = await self.get_by_id(user_id)
+        user.hashed_password = hashed_password
+        await self.session.flush()
 
     async def assign_roles(self, user_id: UUID, role_ids: list[UUID]) -> None:
         """Replace a user's role assignments.

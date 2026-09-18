@@ -22,7 +22,7 @@ class Project(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
     """An electrical project owned by a user (customer)."""
     __tablename__ = "projects"
 
-    owner_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    owner_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), ForeignKey("users.u_id", ondelete="CASCADE"), nullable=False, index=True)
 
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     address: Mapped[str] = mapped_column(String(500), nullable=False)
@@ -43,5 +43,5 @@ class Project(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
     files: Mapped[list["FileAsset"]] = relationship(
         back_populates="project",
         cascade="all, delete-orphan",
-        primaryjoin="and_(Project.id==FileAsset.project_id, FileAsset.payment_id==None)",
+        primaryjoin="and_(Project.u_id==FileAsset.project_id, FileAsset.payment_id==None)",
     )

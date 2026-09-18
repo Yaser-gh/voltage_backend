@@ -9,7 +9,10 @@ from typing import List
 
 from pydantic import Field, PostgresDsn, RedisDsn, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+import os, dotenv
 
+dotenv.load_dotenv()
+getenv = os.environ.get
 
 class Settings(BaseSettings):
     """Central application settings, loaded from environment / .env file."""
@@ -29,7 +32,7 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
 
     # ---------------------------------------------------------------- Server
-    HOST: str = "0.0.0.0"
+    HOST: str = "127.0.0.1"
     PORT: int = 8443
 
     # ---------------------------------------------------------------- Security / JWT

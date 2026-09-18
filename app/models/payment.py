@@ -20,7 +20,7 @@ class Payment(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
     """A single payment/receipt recorded against a project."""
     __tablename__ = "payments"
 
-    project_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True)
+    project_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), ForeignKey("projects.u_id", ondelete="CASCADE"), nullable=False, index=True)
 
     amount: Mapped[float] = mapped_column(Numeric(14, 2), nullable=False)
     bank_name: Mapped[str] = mapped_column(String(100), nullable=False)

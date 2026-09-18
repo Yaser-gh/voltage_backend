@@ -159,10 +159,10 @@ class AuthService:
             remember_me=payload.remember_me,
         )  # TODO
 
-        await self.token_repo.revoke(token_record.id)  # TODO
-        await self.token_repo.mark_replaced(token_record.id, new_record.id)  # TODO
+        await self.token_repo.revoke(token_record.u_id)  # TODO
+        await self.token_repo.mark_replaced(token_record.u_id, new_record.u_id)  # TODO
 
-        logger.info("token_refreshed", user_id=str(user.id))
+        logger.info("token_refreshed", user_id=str(user.u_id))
         return TokenResponse(
             access_token=access_token,
             refresh_token=new_refresh_token,

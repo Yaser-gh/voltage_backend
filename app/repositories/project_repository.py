@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
+from sqlalchemy import select, func
 from app.core.constants import ProjectStatus
 from app.models.project import Project
 from app.repositories.base import BaseRepository
@@ -14,12 +15,13 @@ class ProjectRepository(BaseRepository[Project]):
     model = Project
 
     async def get_by_owner(self, owner_id: UUID, *, offset: int, limit: int) -> tuple[list[Project], int]:
-        """List all projects owned by a specific user.
-
-        TODO: implement with `select(Project).where(Project.owner_id == owner_id,
-        Project.deleted_at.is_(None))`.
-        """
-        raise NotImplementedError
+        """List all projects owned by a specific user."""
+        stmt = select(self.model).where(
+            self.model.owner_id == owner_id,
+            self.model.deleted_at.is_(None)
+        )
+        resp = (await self.session.scalars()).all()
+        return resp, len(resp)
 
     async def search(
         self, *, query: str | None, status: ProjectStatus | None, owner_id: UUID | None,
@@ -38,7 +40,7 @@ class ProjectRepository(BaseRepository[Project]):
         TODO: implement as a targeted UPDATE statement on Project.status, and
         optionally persist `reason` to an audit/history table.
         """
-        raise NotImplementedError
+        return await self.update(entity_id=project_id, status=status.value, reason=reason)
 
     async def recalculate_total_paid(self, project_id: UUID) -> Project | None:
         """Recompute and persist `total_paid` from the sum of related payments.
@@ -49,15 +51,12 @@ class ProjectRepository(BaseRepository[Project]):
         raise NotImplementedError
 
     async def count_by_status(self) -> dict[str, int]:
-        """Count all projects grouped by status (for dashboard widgets).
-
-        TODO: implement via `select(Project.status, func.count()).group_by(Project.status)`.
-        """
-        raise NotImplementedError
+        """Count all projects grouped by status (for dashboard widgets)."""
+        stmt = select(self.model.status, func.count()).group_by(self.model.status)
+        resp = await self.session.execute(stmt)
+        return dict(resp.all())
 
     async def get_recent(self, limit: int = 5) -> list[Project]:
-        """Fetch the most recently created projects (for dashboard 'recent' widget).
-
-        TODO: implement with `.order_by(Project.created_at.desc()).limit(limit)`.
-        """
-        raise NotImplementedError
+        """Fetch the most recently created projects (for dashboard 'recent' widget)."""
+        stmt = select(self.model).order_by(self.model.created_at.desc()).limit(limit)
+        return (await self.session.scalars(stmt)).all()

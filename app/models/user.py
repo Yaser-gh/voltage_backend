@@ -63,7 +63,7 @@ class UserPhoneNumber(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     """Additional (secondary) phone numbers belonging to a user."""
     __tablename__ = "user_phone_numbers"
 
-    user_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), ForeignKey("users.u_id", ondelete="CASCADE"), nullable=False)
     phone: Mapped[str] = mapped_column(String(20), nullable=False)
     label: Mapped[str | None] = mapped_column(String(50), nullable=True)
 
