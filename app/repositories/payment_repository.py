@@ -34,11 +34,7 @@ class PaymentRepository(BaseRepository[Payment]):
     async def search(
         self, *, query: str | None, project_id: UUID | None, date_from: date | None,
         date_to: date | None, offset: int, limit: int, sort_by: str | None, sort_order: str,
-        """AI is creating summary for search
-
-        Returns:
-            [type]: [description]
-        """    ) -> tuple[list[Payment], int]:
+        ) -> tuple[list[Payment], int]:
         """Search/filter/paginate payments by description, project, or date range."""
         stmt = select(self.model).where(self.model.deleted_at.is_(None)).options(selectinload(self.model.project))
         canditions = []
