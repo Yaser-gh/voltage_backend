@@ -72,6 +72,7 @@ class UserRepository(BaseRepository[User]):
             search=query,
             filters={"Is_active": is_active} if is_active is not None else None,
         )
+        
 
     async def add_phone_number(
         self, user_id: UUID, phone: str, label: str | None
