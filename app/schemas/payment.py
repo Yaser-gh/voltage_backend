@@ -76,13 +76,13 @@ class PaymentUpdateRequest(BaseModel):
 
 class PaymentProjectSummary(ORMBase):
     """Minimal project representation embedded in payment responses."""
-    id: UUID
+    u_id: UUID = Field(alias="id")
     name: str
 
 
 class PaymentResponse(ORMBase):
     """Full payment representation returned by detail endpoints."""
-    id: UUID
+    u_id: UUID = Field(alias="id")
     project: PaymentProjectSummary
     amount: float
     bank_name: str
@@ -97,7 +97,7 @@ class PaymentResponse(ORMBase):
 
 class PaymentListItemResponse(ORMBase):
     """Condensed payment representation for list endpoints."""
-    id: UUID
+    u_id: UUID = Field(alias="id")
     project: PaymentProjectSummary
     amount: float
     bank_name: str

@@ -55,7 +55,7 @@ class ProjectStatusUpdateRequest(BaseModel):
 
 class ProjectOwnerSummary(ORMBase):
     """Minimal owner (user) representation embedded in project responses."""
-    id: UUID
+    u_id: UUID = Field(alias="id")
     first_name: str
     last_name: str
     username: str
@@ -63,7 +63,7 @@ class ProjectOwnerSummary(ORMBase):
 
 class ProjectResponse(ORMBase):
     """Full project representation returned by detail endpoints."""
-    id: UUID
+    u_id: UUID = Field(alias='id')
     owner: ProjectOwnerSummary
     name: str
     address: str
@@ -81,7 +81,7 @@ class ProjectResponse(ORMBase):
 
 class ProjectListItemResponse(ORMBase):
     """Condensed project representation for list/grid endpoints."""
-    id: UUID
+    u_id: UUID = Field(alias="id")
     name: str
     address: str
     owner: ProjectOwnerSummary

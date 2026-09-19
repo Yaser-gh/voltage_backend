@@ -29,7 +29,7 @@ class PhoneNumberCreate(BaseModel):
 
 class PhoneNumberResponse(ORMBase):
     """A secondary phone number belonging to a user."""
-    id: UUID
+    u_id: UUID
     phone: str
     label: str | None
 
@@ -117,13 +117,13 @@ class UpdatePhoneRequest(BaseModel):
 
 class RoleSummary(ORMBase):
     """Minimal role representation embedded in user responses."""
-    id: UUID
+    u_id: UUID = Field(alias="role_id")
     name: str
 
 
 class UserResponse(ORMBase):
     """Full user representation returned by detail endpoints."""
-    id: UUID
+    u_id: UUID = Field(alias="user_id")
     first_name: str
     last_name: str
     username: str
@@ -144,7 +144,7 @@ class UserResponse(ORMBase):
 
 class UserListItemResponse(ORMBase):
     """Condensed user representation for list/table endpoints."""
-    id: UUID
+    u_id: UUID = Field(alias="user_id")
     first_name: str
     last_name: str
     username: str
