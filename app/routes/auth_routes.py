@@ -104,7 +104,7 @@ async def logout(
     return SuccessResponse(message="Logged out successfully", data=MessageResponse(message="Logged out"))
 
 
-@router.get(
+@router.post(
     "/me",
     response_model=SuccessResponse[CurrentUser],
     summary="Get the currently authenticated user",

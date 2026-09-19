@@ -10,6 +10,7 @@ from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
+from app.utils.datetime_utils import utcnow
 
 if TYPE_CHECKING:
     from app.models.user import User
@@ -40,4 +41,4 @@ class RefreshToken(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
     @property
     def is_active(self) -> bool:
-        return self.revoked_at is None and self.expires_at > datetime.utcnow()
+        return self.revoked_at is None and self.expires_at > utcnow()
