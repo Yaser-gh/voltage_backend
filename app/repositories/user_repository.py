@@ -151,7 +151,7 @@ class UserRepository(BaseRepository[User]):
     async def set_last_login(self, user_id: UUID) -> None:
         """Record successful login timestamp and reset failed-attempt counters."""
         return await self.update(
-            user_id, last_login_at=utcnow(), failed_login_attempts=0, locked_until=None
+            user_id, last_login_at=utcnow().timestamp(), failed_login_attempts=0, locked_until=None
         )
 
     async def set_password_hash(self, user_id: UUID, hashed_password: str) -> None:
