@@ -64,7 +64,7 @@ class UserRepository(BaseRepository[User]):
         sort_order: str,
     ) -> tuple[list[User], int]:
         """Search/filter/paginate users by name, username, or phone."""
-        return self.list(
+        return await self.list(
             offset=offset,
             limit=limit,
             sort_by=sort_by or "created_at",
