@@ -67,7 +67,7 @@ async def list_users(
     session: AsyncSession = Depends(get_db_session),
 ) -> PaginatedResponse[UserListItemResponse]:
     service = UserService(session)
-    items, total = await service.list_users(payload, is_active=is_active)
+    items, total = await service.list_users(payload, is_active=payload.is_active)
     return PaginatedResponse(data=items, meta=build_pagination_meta(pagination.page, pagination.limit, total))
 
 
@@ -141,15 +141,15 @@ async def delete_avatar(payload: GetUserInfoRequest, session: AsyncSession = Dep
     return SuccessResponse(message="Avatar deleted", data=MessageResponse(message="Avatar deleted"))
 
 @router.post(
-    "/{user_id}/phones",
+    "/addUserPhone",
     response_model=SuccessResponse[PhoneNumberResponse],
     status_code=status.HTTP_201_CREATED,
     summary="Add a secondary phone number",
     dependencies=[Depends(RequirePermission(Permission.USER_UPDATE))],
 )
-async def add_phone(user_id: UUID, payload: PhoneNumberCreate, session: AsyncSession = Depends(get_db_session)) -> SuccessResponse[PhoneNumberResponse]:
+async def add_phone(payload: PhoneNumberCreate, session: AsyncSession = Depends(get_db_session)) -> SuccessResponse[PhoneNumberResponse]:
     service = UserService(session)
-    phone = await service.add_phone(user_id, payload.phone, payload.label)
+    phone = await service.add_phone(payload.user_id, payload.phone, payload.label)
     return SuccessResponse(status=201, message="Phone number added", data=phone)
 
 

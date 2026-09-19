@@ -18,6 +18,7 @@ from app.core.constants import DEFAULT_LIMIT, DEFAULT_PAGE, MAX_LIMIT
 
 class PhoneNumberCreate(BaseModel):
     """Payload for adding a secondary phone number to a user."""
+    user_id: UUID
     phone: str
     label: str | None = Field(None, max_length=50)
 
@@ -29,7 +30,8 @@ class PhoneNumberCreate(BaseModel):
 
 class PhoneNumberResponse(ORMBase):
     """A secondary phone number belonging to a user."""
-    u_id: UUID
+    u_id: UUID = Field(serialization_alias="phone_id", validation_alias="u_id")
+    user_id: UUID
     phone: str
     label: str | None
 
@@ -117,13 +119,13 @@ class UpdatePhoneRequest(BaseModel):
 
 class RoleSummary(ORMBase):
     """Minimal role representation embedded in user responses."""
-    u_id: UUID = Field(alias="role_id")
+    u_id: UUID = Field(serialization_alias="role_id", validation_alias="u_id")
     name: str
 
 
 class UserResponse(ORMBase):
     """Full user representation returned by detail endpoints."""
-    u_id: UUID = Field(alias="user_id")
+    u_id: UUID = Field(serialization_alias="user_id", validation_alias="u_id")
     first_name: str
     last_name: str
     username: str
@@ -144,7 +146,7 @@ class UserResponse(ORMBase):
 
 class UserListItemResponse(ORMBase):
     """Condensed user representation for list/table endpoints."""
-    u_id: UUID = Field(alias="user_id")
+    u_id: UUID = Field(serialization_alias="user_id", validation_alias="u_id")
     first_name: str
     last_name: str
     username: str
