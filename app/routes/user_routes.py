@@ -63,8 +63,7 @@ async def create_user(payload: UserCreateRequest, session: AsyncSession = Depend
     dependencies=[Depends(RequirePermission(Permission.USER_LIST))],
 )
 async def list_users(
-    payload: GetUsersRequest,
-    pagination: PaginationParams = Depends(PaginationParams), 
+    payload: GetUsersRequest, 
     session: AsyncSession = Depends(get_db_session),
 ) -> PaginatedResponse[UserListItemResponse]:
     service = UserService(session)
