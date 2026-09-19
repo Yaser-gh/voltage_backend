@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = Field(..., description="Used to sign access tokens")
     REFRESH_SECRET_KEY: str = Field(..., description="Used to sign refresh tokens, must differ from SECRET_KEY")
     JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     REFRESH_TOKEN_EXPIRE_DAYS_REMEMBER_ME: int = 30
     PASSWORD_RESET_TOKEN_EXPIRE_MINUTES: int = 30
