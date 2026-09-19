@@ -49,7 +49,9 @@ async def get_current_user(
         raise TokenRevokedException()
 
     user_repo = UserRepository(session)
-    user = await user_repo.get_by_id(payload.sub)  # TODO: repository method not yet implemented
+    user = await user_repo.get_by_id(payload.sub)
+    await user_repo.session.refresh(user, ["roles"])
+    await user_repo.session.refresh(user.roles, ["permissions"])
     if user is None:
         raise UnauthorizedException("User account no longer exists")
     if not user.is_active:
