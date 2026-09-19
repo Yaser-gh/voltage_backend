@@ -55,6 +55,9 @@ class UserService:
         user = await self.user_repo.get_by_id(payload.user_id)  # TODO
         if user is None:
             raise NotFoundException("User not found")
+        await self.user_repo.session.refresh(user, ["phone_numbers", "roles"])
+        for role in user.roles:
+            await self.user_repo.session.refresh(role, ["permissions"])
         return user
 
     async def list_users(self, paylod: GetUsersRequest, *, is_active: bool | None = None):

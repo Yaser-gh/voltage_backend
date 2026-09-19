@@ -39,7 +39,7 @@ async def get_dashboard_recent(limit: int = 5, session: AsyncSession = Depends(g
     return SuccessResponse(data=recent)
 
 
-@router.get(
+@router.post(
     "/overview",
     response_model=SuccessResponse[DashboardOverviewResponse],
     summary="Get combined dashboard stats + recent activity in one call",
