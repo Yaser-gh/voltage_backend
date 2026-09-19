@@ -34,7 +34,7 @@ class PhoneNumberResponse(ORMBase):
     label: str | None
 
 class GetUsersRequest(BaseModel):
-    offset: ini | None = Field(DEFAULT_PAGE, ge=1, description="Page number, 1-indexed")
+    offset: int | None = Field(DEFAULT_PAGE, ge=1, description="Page number, 1-indexed")
     limit: int | None = Field(DEFAULT_LIMIT, ge=1, le=MAX_LIMIT, description="Items per page.")
     is_active: bool | None = None
     is_pinned: bool | None = None

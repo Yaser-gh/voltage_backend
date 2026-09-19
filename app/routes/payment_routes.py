@@ -158,7 +158,7 @@ async def upload_receipt(
     session: AsyncSession = Depends(get_db_session),
 ) -> SuccessResponse[FileAssetResponse]:
     service = PaymentService(session)
-    file_asset = await service.upload_receipt(payment_id, file, current_user.id)
+    file_asset = await service.upload_receipt(payment_id, file, current_user.u_id)
     return SuccessResponse(status=201, message="Receipt uploaded", data=file_asset)
 
 

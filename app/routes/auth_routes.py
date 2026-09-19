@@ -131,7 +131,7 @@ async def change_password(
 ) -> SuccessResponse[MessageResponse]:
     """Change password for the authenticated user."""
     service = AuthService(session, redis)
-    await service.change_password(current_user.id, payload.current_password, payload.new_password)
+    await service.change_password(current_user.u_id, payload.current_password, payload.new_password)
     return SuccessResponse(message="Password changed successfully", data=MessageResponse(message="Password changed"))
 
 

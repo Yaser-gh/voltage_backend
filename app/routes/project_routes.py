@@ -165,7 +165,7 @@ async def upload_project_file(
     session: AsyncSession = Depends(get_db_session),
 ) -> SuccessResponse[FileAssetResponse]:
     service = ProjectService(session)
-    file_asset = await service.upload_file(project_id, file, current_user.id)
+    file_asset = await service.upload_file(project_id, file, current_user.u_id)
     return SuccessResponse(status=201, message="File uploaded", data=file_asset)
 
 

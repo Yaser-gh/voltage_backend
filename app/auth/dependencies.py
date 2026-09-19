@@ -57,7 +57,7 @@ async def get_current_user(
     if getattr(user, "locked_until", None):
         raise AccountLockedException()
 
-    request.state.user_id = str(user.id)
+    request.state.user_id = str(user.u_id)
 
     permissions: list[str] = []
     for role in getattr(user, "roles", []):
@@ -65,7 +65,7 @@ async def get_current_user(
             permissions.append(perm.code)
 
     return CurrentUser(
-        id=user.id,
+        id=user.u_id,
         username=user.username,
         roles=[r.name for r in getattr(user, "roles", [])],
         permissions=list(set(permissions)),

@@ -82,7 +82,7 @@ class FileService:
     def to_metadata_dict(file_asset) -> dict:
         """Build a human-friendly metadata dict (e.g. for a 'get metadata' endpoint)."""
         return {
-            "id": file_asset.id,
+            "id": file_asset.u_id,
             "original_filename": file_asset.original_filename,
             "extension": file_asset.extension,
             "mime_type": file_asset.mime_type,

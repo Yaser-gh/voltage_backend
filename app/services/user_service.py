@@ -46,7 +46,7 @@ class UserService:
             is_active=payload.is_active,
         )
         if payload.role_ids:
-            await self.user_repo.assign_roles(user.id, payload.role_ids)  # TODO
+            await self.user_repo.assign_roles(user.u_id, payload.role_ids)  # TODO
         logger.info("user_created", user_id=str(getattr(user, "id", None)))
         return user
 
@@ -107,7 +107,7 @@ class UserService:
         """Update the primary phone number, enforcing global uniqueness."""
         await self.get_user(user_id)
         existing = await self.user_repo.get_by_phone(phone)  # TODO
-        if existing is not None and existing.id != user_id:
+        if existing is not None and existing.u_id != user_id:
             raise AlreadyExistsException("Phone number is already in use by another user")
         return await self.user_repo.update_primary_phone(user_id, phone)  # TODO
 

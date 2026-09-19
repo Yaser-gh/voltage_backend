@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 T = TypeVar("T")
 
-class MessageResponce(BaseModel):
+class MessageResponse(BaseModel):
     pass
 
 class ErrorDetail(BaseModel):

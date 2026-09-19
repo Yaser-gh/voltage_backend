@@ -63,12 +63,12 @@ class AuthService:
         if user is None:
             # Perform a dummy hash comparison to keep response timing consistent
             # whether or not the username exists (mitigates user-enumeration via timing).
-            verify_password(password, "$argon2id$v=19$m=65536,t=3,p=4$dummysaltdummysalt$dummyhash")
+            verify_password(password, "$argon2id$v=19$m=65536,t=3,p=4$QMjZWyvlPEcIIYRwTsm5tw$eIq9eUngygEjP3ddaDOB/KB9wXVaeEqBXAvwfG8ioSY")
             logger.warning("login_failed", reason="user_not_found", username=username)
             raise InvalidCredentialsException()
 
         if user.locked_until and user.locked_until > datetime.now(timezone.utc):
-            logger.warning("login_blocked_locked", user_id=str(user.id))
+            logger.warning("login_blocked_locked", user_id=str(user.u_id))
             raise AccountLockedException()
 
         if not verify_password(password, user.hashed_password):
@@ -76,30 +76,30 @@ class AuthService:
             locked_until = None
             if attempts >= MAX_FAILED_ATTEMPTS:
                 locked_until = datetime.now(timezone.utc) + timedelta(minutes=LOCKOUT_DURATION_MINUTES)
-                logger.warning("account_locked", user_id=str(user.id))
-            await self.user_repo.set_failed_login_attempts(user.id, attempts, locked_until)
-            logger.warning("login_failed", reason="bad_password", user_id=str(user.id))
+                logger.warning("account_locked", user_id=str(user.u_id))
+            await self.user_repo.set_failed_login_attempts(user.u_id, attempts, locked_until)
+            logger.warning("login_failed", reason="bad_password", user_id=str(user.u_id))
             raise InvalidCredentialsException()
 
         if not user.is_active:
             raise InvalidCredentialsException()
 
         if needs_rehash(user.hashed_password):
-            await self.user_repo.set_password_hash(user.id, hash_password(password))
+            await self.user_repo.set_password_hash(user.u_id, hash_password(password))
 
-        await self.user_repo.set_last_login(user.id)
-        logger.info("login_success", user_id=str(user.id))
+        await self.user_repo.set_last_login(user.u_id)
+        logger.info("login_success", user_id=str(user.u_id))
 
         return await self._issue_token_pair(user, remember_me=remember_me, ip_address=ip_address, user_agent=user_agent)
 
     async def _issue_token_pair(self, user, *, remember_me: bool, ip_address: str | None, user_agent: str | None) -> TokenResponse:
         """Create and persist a new access+refresh token pair for a user."""
         role_names = [r.name for r in getattr(user, "roles", [])]
-        access_token, _ = create_access_token(str(user.id), role_names)
-        refresh_token, jti, expires_at = create_refresh_token(str(user.id), remember_me=remember_me)
+        access_token, _ = create_access_token(str(user.u_id), role_names)
+        refresh_token, jti, expires_at = create_refresh_token(str(user.u_id), remember_me=remember_me)
 
         await self.token_repo.create(
-            user_id=user.id,
+            user_id=user.u_id,
             token_hash=_hash_token(refresh_token),
             family_id=uuid4(),
             user_agent=user_agent,
@@ -146,11 +146,11 @@ class AuthService:
             raise TokenInvalidException("User account no longer valid")
 
         role_names = [r.name for r in getattr(user, "roles", [])]
-        access_token, _ = create_access_token(str(user.id), role_names)
-        new_refresh_token, _, expires_at = create_refresh_token(str(user.id), remember_me=payload.remember_me)
+        access_token, _ = create_access_token(str(user.u_id), role_names)
+        new_refresh_token, _, expires_at = create_refresh_token(str(user.u_id), remember_me=payload.remember_me)
 
         new_record = await self.token_repo.create(
-            user_id=user.id,
+            user_id=user.u_id,
             token_hash=_hash_token(new_refresh_token),
             family_id=token_record.family_id,
             user_agent=user_agent,
@@ -177,7 +177,7 @@ class AuthService:
         if raw_refresh_token:
             token_record = await self.token_repo.get_by_token_hash(_hash_token(raw_refresh_token))  # TODO
             if token_record is not None:
-                await self.token_repo.revoke(token_record.id)  # TODO
+                await self.token_repo.revoke(token_record.u_id)  # TODO
         logger.info("logout", jti=access_token_jti)
 
     async def change_password(self, user_id: UUID, current_password: str, new_password: str) -> None:
@@ -208,8 +208,8 @@ class AuthService:
             return None
 
         from app.security.jwt import create_password_reset_token
-        token = create_password_reset_token(str(user.id))
-        logger.info("password_reset_requested", user_id=str(user.id))
+        token = create_password_reset_token(str(user.u_id))
+        logger.info("password_reset_requested", user_id=str(user.u_id))
         # TODO: dispatch `token` via email/SMS through a BackgroundTask; never log/return it raw.
         return token
 
