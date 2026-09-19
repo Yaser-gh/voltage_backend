@@ -8,5 +8,5 @@ limiter = Limiter(
     key_func=get_remote_address,
     storage_uri=str(settings.REDIS_URL),
     default_limits=[settings.RATE_LIMIT_DEFAULT],
-    headers_enabled=True,
+    headers_enabled=False,
 )
