@@ -51,7 +51,8 @@ async def get_current_user(
     user_repo = UserRepository(session)
     user = await user_repo.get_by_id(payload.sub)
     await user_repo.session.refresh(user, ["roles"])
-    await user_repo.session.refresh(user.roles, ["permissions"])
+    for role in user.roles:
+        await user_repo.session.refresh(role, ["permissions"])
     if user is None:
         raise UnauthorizedException("User account no longer exists")
     if not user.is_active:
