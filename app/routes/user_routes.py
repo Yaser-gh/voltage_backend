@@ -64,11 +64,12 @@ async def create_user(payload: UserCreateRequest, session: AsyncSession = Depend
 )
 async def list_users(
     payload: GetUsersRequest,
+    pagination: PaginationParams = Depends(PaginationParams), 
     session: AsyncSession = Depends(get_db_session),
 ) -> PaginatedResponse[UserListItemResponse]:
     service = UserService(session)
     items, total = await service.list_users(payload, is_active=payload.is_active)
-    return PaginatedResponse(data=items, meta=build_pagination_meta(pagination.page, pagination.limit, total))
+    return PaginatedResponse(data=items, meta=build_pagination_meta(payload.offset, payload.limit, total))
 
 
 @router.post(
